@@ -1,0 +1,79 @@
+/* Custom styles and enhancements for MailScout Pro */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+code, pre, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* Glassmorphism effects */
+.glass-panel {
+    background: rgba(17, 24, 39, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+    background: rgba(31, 41, 55, 0.65);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+    border-color: rgba(99, 102, 241, 0.35);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+}
+
+/* Gradient glow */
+.gradient-glow {
+    position: relative;
+}
+.gradient-glow::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(135deg, #6366f1, #3b82f6, #10b981);
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0.15;
+    filter: blur(14px);
+    transition: opacity 0.3s ease;
+}
+.gradient-glow:hover::before {
+    opacity: 0.35;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #0f172a;
+}
+::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+/* Pulsing badge animation */
+@keyframes pulse-subtle {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.85; transform: scale(1.03); }
+}
+
+.badge-pulse {
+    animation: pulse-subtle 2s infinite ease-in-out;
+}
+

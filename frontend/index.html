@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MailScout Pro - Executive & HR Lead Finder & Verifier</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/custom.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="border-b border-slate-800/80 bg-slate-950/80 sticky top-0 z-40 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-emerald-400 flex items-center justify-center shadow-lg shadow-indigo-600/25">
+                    <i data-lucide="mail-search" class="w-5 h-5 text-white"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-white via-slate-100 to-indigo-200 bg-clip-text text-transparent">MailScout Pro</span>
+                        <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">LIVE VERIFIER</span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 leading-none">Find & Verify HR, VP & Director Emails for Cold Outreach</p>
+                </div>
+            </div>
+
+            <!-- View Switcher Tabs -->
+            <div class="flex items-center bg-slate-900 p-1 rounded-xl border border-slate-800">
+                <button id="tab-btn-single" class="flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white transition-all shadow-sm">
+                    <i data-lucide="search" class="w-3.5 h-3.5"></i>
+                    Single Company
+                </button>
+                <button id="tab-btn-batch" class="flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 transition-all">
+                    <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+                    Batch / CSV Upload
+                </button>
+                <button id="tab-btn-verifier" class="flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 transition-all">
+                    <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                    Email Verifier
+                </button>
+            </div>
+
+            <!-- Header Action -->
+            <div class="flex items-center gap-3">
+                <button onclick="openSettingsModal()" class="flex items-center gap-2 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-medium rounded-xl border border-slate-800 transition">
+                    <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+                    Settings & API
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- ======================================================== -->
+        <!-- VIEW 1: SINGLE COMPANY SEARCH -->
+        <!-- ======================================================== -->
+        <section id="view-single" class="space-y-8">
+            <!-- Hero Search Card -->
+            <div class="relative rounded-3xl p-8 sm:p-10 border border-slate-800/80 bg-gradient-to-b from-slate-900/90 to-slate-950/90 shadow-2xl overflow-visible">
+                <div class="max-w-3xl mx-auto text-center space-y-4 mb-8">
+                    <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+                        Direct Cold Mail Access to <span class="bg-gradient-to-r from-indigo-400 via-sky-300 to-emerald-400 bg-clip-text text-transparent">HR, VPs & Directors</span>
+                    </h1>
+                    <p class="text-sm sm:text-base text-slate-400">
+                        Type any company name. MailScout uncovers key decision-makers and performs real-time DNS MX & SMTP deliverability checks so your cold emails never bounce.
+                    </p>
+                </div>
+
+                <!-- Search Form with Autocomplete -->
+                <div class="max-w-2xl mx-auto relative">
+                    <div class="relative flex items-center shadow-xl">
+                        <div class="absolute left-4 text-slate-400 pointer-events-none">
+                            <i data-lucide="building-2" class="w-5 h-5"></i>
+                        </div>
+                        <input 
+                            id="company-search-input"
+                            type="text" 
+                            placeholder="Enter company name or domain (e.g. Stripe, Airbnb, Google, Infosys)..." 
+                            autocomplete="off"
+                            class="w-full pl-12 pr-40 py-4 bg-slate-900/90 border border-slate-700/80 rounded-2xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm sm:text-base transition-all font-medium"
+                            onkeydown="if(event.key === 'Enter') quickSearch(this.value)"
+                        />
+                        <button 
+                            id="search-btn"
+                            onclick="quickSearch(document.getElementById('company-search-input').value)"
+                            class="absolute right-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white rounded-xl text-xs sm:text-sm font-semibold transition flex items-center gap-2 shadow-lg shadow-indigo-600/30"
+                        >
+                            <span id="search-icon" class="flex items-center gap-1.5">
+                                <i data-lucide="sparkles" class="w-4 h-4"></i> Find Leads
+                            </span>
+                            <span id="search-loader" class="hidden flex items-center gap-2">
+                                <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Checking MX...
+                            </span>
+                        </button>
+                    </div>
+
+                    <!-- Autocomplete Dropdown -->
+                    <div id="autocomplete-dropdown" class="hidden absolute top-full left-0 right-0 mt-2 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-2 z-50 divide-y divide-slate-800/50">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <!-- Quick Suggestions Chips -->
+                    <div class="flex items-center justify-center flex-wrap gap-2 mt-4 text-xs text-slate-400">
+                        <span class="text-slate-500">Popular:</span>
+                        <button onclick="quickSearch('Stripe', 'stripe.com')" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 transition">Stripe</button>
+                        <button onclick="quickSearch('Google', 'google.com')" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 transition">Google</button>
+                        <button onclick="quickSearch('Microsoft', 'microsoft.com')" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 transition">Microsoft</button>
+                        <button onclick="quickSearch('Apple', 'apple.com')" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 transition">Apple</button>
+                        <button onclick="quickSearch('Netflix', 'netflix.com')" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 transition">Netflix</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State / Guide -->
+            <div id="single-empty-state" class="text-center py-16 px-4">
+                <div class="w-16 h-16 rounded-2xl bg-indigo-950/50 border border-indigo-900/60 mx-auto flex items-center justify-center text-indigo-400 mb-4">
+                    <i data-lucide="users" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-200">Search Any Company to Discover Verified Contacts</h3>
+                <p class="text-sm text-slate-400 max-w-md mx-auto mt-1 mb-6">
+                    We will find the direct mail addresses of HR Directors, Vice Presidents, and Operational Directors, with real-time verification scores and pre-written cold mail pitches.
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto text-left">
+                    <div class="p-4 rounded-xl bg-slate-900/50 border border-slate-800">
+                        <div class="flex items-center gap-2 text-indigo-400 font-semibold text-xs mb-1">
+                            <i data-lucide="user-check" class="w-4 h-4"></i> HR & Recruiters
+                        </div>
+                        <p class="text-xs text-slate-400">Target Talent Heads and People Directors for hiring and career opportunities.</p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-slate-900/50 border border-slate-800">
+                        <div class="flex items-center gap-2 text-purple-400 font-semibold text-xs mb-1">
+                            <i data-lucide="briefcase" class="w-4 h-4"></i> VPs & Executives
+                        </div>
+                        <p class="text-xs text-slate-400">Reach VPs of Engineering, Sales, and Growth for high-ticket B2B solutions.</p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-slate-900/50 border border-slate-800">
+                        <div class="flex items-center gap-2 text-emerald-400 font-semibold text-xs mb-1">
+                            <i data-lucide="shield-check" class="w-4 h-4"></i> 100% Legitimacy Checked
+                        </div>
+                        <p class="text-xs text-slate-400">Every address undergoes DNS MX lookups, catch-all detection, and SMTP checks.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Container -->
+            <div id="single-results-container" class="hidden space-y-6">
+                <!-- Company Header Banner -->
+                <div class="p-6 rounded-2xl glass-panel border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <img id="res-company-logo" src="" alt="Company Logo" class="w-14 h-14 rounded-2xl bg-slate-900 p-1 border border-slate-800 object-contain shadow">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h2 id="res-company-name" class="text-2xl font-bold text-white">Company</h2>
+                                <a id="res-company-domain" href="#" target="_blank" class="text-xs font-mono text-indigo-400 hover:underline flex items-center gap-1">
+                                    domain.com <i data-lucide="external-link" class="w-3 h-3"></i>
+                                </a>
+                            </div>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span id="res-total-badge" class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800 text-slate-300">10 Contacts</span>
+                                <span id="res-valid-badge" class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">8 Deliverable</span>
+                                <span id="res-risky-badge" class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">2 Catch-All</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Export and Bulk Copy Bar -->
+                    <div class="flex items-center flex-wrap gap-2 w-full md:w-auto">
+                        <button onclick="copyAllVerifiedEmails()" class="flex items-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold border border-slate-700 transition" title="Copy all verified email addresses for batch BCC">
+                            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                            Copy All Emails
+                        </button>
+                        <button onclick="exportLeads('csv')" class="flex items-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold border border-slate-700 transition">
+                            <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-emerald-400"></i>
+                            Export CSV
+                        </button>
+                        <button onclick="exportLeads('excel')" class="flex items-center gap-1.5 px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold transition shadow-md shadow-indigo-600/20">
+                            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                            Export Excel
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filter Tabs -->
+                <div class="flex items-center flex-wrap gap-2 border-b border-slate-800/80 pb-3">
+                    <button id="filter-btn-all" onclick="filterContacts('all')" class="filter-tab-btn px-4 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white border border-indigo-500 transition">
+                        All Leads
+                    </button>
+                    <button id="filter-btn-HR" onclick="filterContacts('HR')" class="filter-tab-btn px-4 py-1.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white border border-slate-800 transition flex items-center gap-1.5">
+                        <i data-lucide="users" class="w-3.5 h-3.5 text-indigo-400"></i> HR & Talent
+                    </button>
+                    <button id="filter-btn-VP" onclick="filterContacts('VP')" class="filter-tab-btn px-4 py-1.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white border border-slate-800 transition flex items-center gap-1.5">
+                        <i data-lucide="briefcase" class="w-3.5 h-3.5 text-purple-400"></i> Vice Presidents (VP)
+                    </button>
+                    <button id="filter-btn-DIRECTOR" onclick="filterContacts('DIRECTOR')" class="filter-tab-btn px-4 py-1.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white border border-slate-800 transition flex items-center gap-1.5">
+                        <i data-lucide="target" class="w-3.5 h-3.5 text-teal-400"></i> Directors
+                    </button>
+                    <button id="filter-btn-C_SUITE" onclick="filterContacts('C_SUITE')" class="filter-tab-btn px-4 py-1.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white border border-slate-800 transition flex items-center gap-1.5">
+                        <i data-lucide="crown" class="w-3.5 h-3.5 text-amber-400"></i> C-Suite / Founders
+                    </button>
+                    <button id="filter-btn-valid" onclick="filterContacts('valid')" class="filter-tab-btn px-4 py-1.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white border border-slate-800 transition flex items-center gap-1.5 ml-auto">
+                        <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i> Deliverable Only
+                    </button>
+                </div>
+
+                <!-- Contacts Cards Grid -->
+                <div id="contacts-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <!-- Populated dynamically by app.js -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================================== -->
+        <!-- VIEW 2: BATCH / BULK PROCESSING -->
+        <!-- ======================================================== -->
+        <section id="view-batch" class="hidden space-y-8">
+            <div class="rounded-3xl p-8 border border-slate-800 bg-slate-900/60">
+                <div class="max-w-3xl mb-6">
+                    <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 mb-3 inline-block">
+                        HIGH-VOLUME AUTOMATION
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Batch Lead Discovery & Verification</h2>
+                    <p class="text-sm text-slate-400 mt-1">
+                        Have a list of multiple companies? Paste them or drop a CSV file below. MailScout processes all companies simultaneously, extracting HR, VP, and Director contacts while validating live email deliverability.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Textarea Input -->
+                    <div class="space-y-2">
+                        <label class="block text-xs font-semibold text-slate-300">Paste Company Names or Domains (one per line):</label>
+                        <textarea 
+                            id="batch-textarea"
+                            rows="7"
+                            placeholder="Stripe&#10;Google&#10;Microsoft&#10;Airbnb&#10;Netflix&#10;Spotify&#10;Uber"
+                            class="w-full p-4 bg-slate-950 border border-slate-800 rounded-2xl text-sm font-mono text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        ></textarea>
+                    </div>
+
+                    <!-- Drag & Drop CSV Dropzone -->
+                    <div class="space-y-2 flex flex-col justify-between">
+                        <label class="block text-xs font-semibold text-slate-300">Or Upload CSV / TXT File:</label>
+                        <div id="csv-dropzone" class="border-2 border-dashed border-slate-700/80 rounded-2xl p-6 text-center hover:border-indigo-500 hover:bg-slate-950/50 transition cursor-pointer flex-1 flex flex-col items-center justify-center">
+                            <i data-lucide="upload-cloud" class="w-8 h-8 text-indigo-400 mb-2"></i>
+                            <p class="text-xs font-medium text-slate-200">Click to browse or drag and drop CSV file</p>
+                            <p class="text-[11px] text-slate-500 mt-1">First column should contain company names or domains</p>
+                            <input id="csv-file-input" type="file" accept=".csv,.txt" class="hidden">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Launch Button -->
+                <div class="mt-6 flex items-center justify-between flex-wrap gap-4 pt-4 border-t border-slate-800/80">
+                    <span class="text-xs text-slate-400 flex items-center gap-1.5">
+                        <i data-lucide="info" class="w-4 h-4 text-indigo-400"></i> Max 25 companies per batch for optimal speed and reliability.
+                    </span>
+                    <button 
+                        id="start-batch-btn" 
+                        onclick="startBatchSearch()"
+                        class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-semibold text-sm rounded-xl transition shadow-lg shadow-indigo-600/30 flex items-center gap-2"
+                    >
+                        <i data-lucide="play" class="w-4 h-4"></i>
+                        Start Batch Discovery
+                    </button>
+                </div>
+            </div>
+
+            <!-- Batch Progress Indicator -->
+            <div id="batch-progress-container" class="hidden p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+                <div class="flex items-center justify-between text-xs font-medium text-slate-300">
+                    <span id="batch-progress-text" class="flex items-center gap-2">
+                        <i data-lucide="loader-2" class="w-4 h-4 animate-spin text-indigo-400"></i>
+                        Processing companies...
+                    </span>
+                </div>
+                <div class="w-full h-2.5 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
+                    <div id="batch-progress-bar" class="h-full bg-gradient-to-r from-indigo-500 to-emerald-400 w-0 transition-all duration-300"></div>
+                </div>
+            </div>
+
+            <!-- Batch Results Table View -->
+            <div id="batch-results-container" class="hidden space-y-6">
+                <!-- Batch Stats Summary -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div class="p-4 rounded-xl bg-slate-900 border border-slate-800">
+                        <span class="text-xs text-slate-400">Companies Processed</span>
+                        <div id="batch-stat-companies" class="text-2xl font-bold text-white mt-1">0</div>
+                    </div>
+                    <div class="p-4 rounded-xl bg-slate-900 border border-slate-800">
+                        <span class="text-xs text-slate-400">Total Leads Found</span>
+                        <div id="batch-stat-leads" class="text-2xl font-bold text-indigo-400 mt-1">0</div>
+                    </div>
+                    <div class="p-4 rounded-xl bg-slate-900 border border-slate-800">
+                        <span class="text-xs text-slate-400">Deliverable Leads</span>
+                        <div id="batch-stat-valid" class="text-2xl font-bold text-emerald-400 mt-1">0</div>
+                    </div>
+                    <div class="p-4 rounded-xl bg-slate-900 border border-slate-800">
+                        <span class="text-xs text-slate-400">HR Contacts</span>
+                        <div id="batch-stat-hr" class="text-2xl font-bold text-purple-400 mt-1">0</div>
+                    </div>
+                </div>
+
+                <!-- Export Bar -->
+                <div class="flex items-center justify-between flex-wrap gap-4 p-4 rounded-xl bg-slate-900 border border-slate-800">
+                    <span class="text-xs text-slate-300 font-semibold">Ready for Cold Outreach Campaign</span>
+                    <div class="flex items-center gap-2">
+                        <button onclick="exportBatchLeads('csv')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg border border-slate-700 transition flex items-center gap-1.5">
+                            <i data-lucide="file-text" class="w-3.5 h-3.5 text-emerald-400"></i> Export All to CSV
+                        </button>
+                        <button onclick="exportBatchLeads('excel')" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition shadow flex items-center gap-1.5">
+                            <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i> Export All to Excel
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Leads Table -->
+                <div class="rounded-2xl border border-slate-800 bg-slate-900/60 overflow-hidden shadow-xl">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-950/80 text-xs uppercase text-slate-400 font-semibold border-b border-slate-800">
+                                <tr>
+                                    <th class="p-3.5">Company & Domain</th>
+                                    <th class="p-3.5">Decision Maker & Title</th>
+                                    <th class="p-3.5">Category</th>
+                                    <th class="p-3.5">Email Address</th>
+                                    <th class="p-3.5">Deliverability</th>
+                                    <th class="p-3.5 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="batch-leads-tbody" class="divide-y divide-slate-800/60">
+                                <!-- Populated dynamically by app.js -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================================== -->
+        <!-- VIEW 3: STANDALONE EMAIL VERIFIER -->
+        <!-- ======================================================== -->
+        <section id="view-verifier" class="hidden space-y-8">
+            <div class="max-w-3xl mx-auto rounded-3xl p-8 border border-slate-800 bg-slate-900/60 shadow-2xl">
+                <div class="text-center space-y-2 mb-8">
+                    <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 inline-block">
+                        ZERO-BOUNCE EMAIL VALIDATION
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Multi-Stage Email Legitimacy Verifier</h2>
+                    <p class="text-xs sm:text-sm text-slate-400 max-w-lg mx-auto">
+                        Verify whether any single email address actually exists. Tests RFC syntax, disposable providers, DNS MX servers, catch-all configurations, and SMTP handshakes.
+                    </p>
+                </div>
+
+                <!-- Verifier Input Box -->
+                <div class="flex items-center gap-3">
+                    <div class="relative flex-1">
+                        <i data-lucide="mail" class="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2"></i>
+                        <input 
+                            id="verifier-input"
+                            type="email" 
+                            placeholder="Enter any email address (e.g. hr@stripe.com, recruiter@google.com)..."
+                            class="w-full pl-11 pr-4 py-3.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm font-mono"
+                            onkeydown="if(event.key === 'Enter') verifyStandaloneEmail()"
+                        />
+                    </div>
+                    <button 
+                        id="verify-standalone-btn"
+                        onclick="verifyStandaloneEmail()"
+                        class="px-5 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs sm:text-sm font-semibold transition flex items-center gap-2 shadow-lg shadow-emerald-600/20"
+                    >
+                        <i data-lucide="shield-check" class="w-4 h-4"></i>
+                        Verify Legitimacy
+                        <i id="verifier-loader" data-lucide="loader-2" class="w-4 h-4 animate-spin hidden"></i>
+                    </button>
+                </div>
+
+                <!-- Verification Output Card -->
+                <div id="verifier-result-box" class="hidden mt-8 space-y-6 pt-6 border-t border-slate-800/80">
+                    <!-- Top Result Overview -->
+                    <div class="p-5 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-between flex-wrap gap-4">
+                        <div>
+                            <span class="text-xs text-slate-400 font-mono">Analyzed Address</span>
+                            <div id="verifier-res-email" class="text-lg font-mono font-bold text-white">user@example.com</div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span id="verifier-res-status" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+                                VALID
+                            </span>
+                            <div class="text-right">
+                                <span class="text-xs text-slate-400">Score</span>
+                                <div id="verifier-res-score" class="text-xl font-bold text-emerald-400">98%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5-Point Health Grid -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div class="p-3.5 bg-slate-950/70 rounded-xl border border-slate-800 text-center">
+                            <span class="text-xs text-slate-400 block mb-1">Syntax RFC</span>
+                            <div id="verifier-res-syntax" class="text-xs font-semibold">Valid</div>
+                        </div>
+                        <div class="p-3.5 bg-slate-950/70 rounded-xl border border-slate-800 text-center">
+                            <span class="text-xs text-slate-400 block mb-1">Disposable</span>
+                            <div id="verifier-res-disposable" class="text-xs font-semibold">Clean</div>
+                        </div>
+                        <div class="p-3.5 bg-slate-950/70 rounded-xl border border-slate-800 text-center">
+                            <span class="text-xs text-slate-400 block mb-1">Catch-All Policy</span>
+                            <div id="verifier-res-catchall" class="text-xs font-semibold">Dedicated</div>
+                        </div>
+                        <div class="p-3.5 bg-slate-950/70 rounded-xl border border-slate-800 text-center truncate">
+                            <span class="text-xs text-slate-400 block mb-1">MX Mail Server</span>
+                            <div id="verifier-res-mx" class="text-xs font-mono font-semibold text-slate-300 truncate">Active</div>
+                        </div>
+                    </div>
+
+                    <!-- Recommendation & Diagnostic Details -->
+                    <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+                        <div class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                            <i data-lucide="info" class="w-3.5 h-3.5 text-indigo-400"></i> Outreach Recommendation:
+                        </div>
+                        <p id="verifier-res-recommendation" class="text-sm text-slate-300"></p>
+                        <div id="verifier-res-smtp-notes" class="text-xs font-mono text-indigo-400 bg-indigo-950/30 p-2.5 rounded-lg border border-indigo-900/40"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ======================================================== -->
+    <!-- MODAL 1: COLD EMAIL COMPOSER -->
+    <!-- ======================================================== -->
+    <div id="cold-email-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-600/20 text-indigo-400 flex items-center justify-center border border-indigo-500/30">
+                        <i data-lucide="mail-plus" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-white">Cold Outreach Pitch Composer</h3>
+                        <span id="draft-role-badge" class="text-xs text-indigo-400 font-medium">To Executive</span>
+                    </div>
+                </div>
+                <button onclick="closeColdEmailModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Template Selector & Recipient -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">To Email:</label>
+                    <input id="draft-to-email" type="text" readonly class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-300">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Select Proven Pitch Template:</label>
+                    <select id="draft-template-select" onchange="onTemplateChanged()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        <option value="hr">HR & Talent (Hiring & Job Inquiry)</option>
+                        <option value="vp">VP & Executive (B2B Solution / High-Level Pitch)</option>
+                        <option value="director">Director (Operational & Workflow Collaboration)</option>
+                        <option value="csuite">CEO & Founder (Strategic Partnership)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Subject Line -->
+            <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Subject Line:</label>
+                <input id="draft-subject" type="text" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-100 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+
+            <!-- Body -->
+            <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Email Body:</label>
+                <textarea id="draft-body" rows="8" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3.5 text-xs text-slate-200 leading-relaxed font-sans focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+            </div>
+
+            <!-- Actions Footer -->
+            <div class="flex items-center justify-between pt-3 border-t border-slate-800">
+                <button onclick="copyDraftBody()" class="flex items-center gap-1.5 px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition">
+                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                    Copy Pitch
+                </button>
+                <div class="flex items-center gap-2">
+                    <button onclick="openDraftInMailto()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition flex items-center gap-1.5">
+                        <i data-lucide="mail" class="w-3.5 h-3.5"></i>
+                        Default Client
+                    </button>
+                    <button onclick="openDraftInGmail()" class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white text-xs font-semibold rounded-xl transition shadow-lg shadow-indigo-600/25 flex items-center gap-1.5">
+                        <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                        Open in Gmail
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- MODAL 2: VERIFICATION DIAGNOSTICS MODAL -->
+    <!-- ======================================================== -->
+    <div id="verif-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div class="flex items-center gap-2 text-emerald-400 font-bold text-sm">
+                    <i data-lucide="shield-check" class="w-4 h-4"></i>
+                    Technical Deliverability Diagnostic
+                </div>
+                <button onclick="closeVerifModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div id="verif-modal-content">
+                <!-- Injected by app.js -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- MODAL 3: SETTINGS & API MODAL -->
+    <!-- ======================================================== -->
+    <div id="settings-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div class="flex items-center gap-2 font-bold text-sm text-white">
+                    <i data-lucide="sliders" class="w-4 h-4 text-indigo-400"></i>
+                    Settings & Integrations
+                </div>
+                <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-4 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">Optional Hunter.io API Key:</label>
+                    <input id="settings-hunter-key" type="password" placeholder="e.g. 5b7d8c4e... (leave blank for built-in engine)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 font-mono focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    <p class="text-[11px] text-slate-500 mt-1">If provided, queries Hunter's global enterprise database alongside MailScout's built-in engine.</p>
+                </div>
+
+                <div class="flex items-center justify-between p-3 bg-slate-950 rounded-xl border border-slate-800">
+                    <div>
+                        <span class="font-semibold text-slate-200 block">Live SMTP Handshake</span>
+                        <span class="text-[11px] text-slate-400">Perform direct port 25 mailbox verification & catch-all probing</span>
+                    </div>
+                    <input id="settings-smtp-toggle" type="checkbox" checked class="w-4 h-4 accent-indigo-600 rounded">
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+                <button onclick="closeSettingsModal()" class="px-4 py-2 bg-slate-800 text-slate-300 text-xs rounded-xl font-medium">Cancel</button>
+                <button onclick="saveSettings()" class="px-4 py-2 bg-indigo-600 text-white text-xs rounded-xl font-semibold hover:bg-indigo-500 transition">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-xl shadow-2xl text-sm font-medium transition-all duration-300 transform translate-y-12 opacity-0 pointer-events-none">
+        <span id="toast-message">Notification</span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800/80 py-6 text-center text-xs text-slate-500">
+        <p>MailScout Pro &bull; High-Deliverability B2B Cold Outreach Engine &bull; Compliant with CAN-SPAM & GDPR guidelines</p>
+    </footer>
+
+    <!-- App Logic -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
+
